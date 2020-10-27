@@ -1,0 +1,23 @@
+sysname SDB-VSR
+router id 10.90.30.70
+ospf 1
+area 0.0.0.0
+exit
+
+interface gigabitEthernet1/0
+ip address dhcp-alloc
+nat outbound
+nat server protocol udp global current-interface 4500 inside 198.54.100.9 4500
+exit
+
+interface gigabitEthernet2/0
+ip address 10.90.30.70 255.255.255.0
+ospf 1 area 0.0.0.0
+exit
+
+line vty 0
+authentication-mode none
+telnet server enable
+exit
+save force
+exit
