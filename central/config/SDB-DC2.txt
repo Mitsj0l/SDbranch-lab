@@ -107,7 +107,7 @@
     "route-map allowall permit 1",
     "!",
     "route-map dc2 permit 1",
-    "set metric 20",
+    "set origin igp",
     "!",
     "router bgp redistribute overlay",
     "!",

@@ -107,7 +107,7 @@
     "route-map allowall permit 1",
     "!",
     "route-map dc1 permit 1",
-    "set metric 10",
+    "set origin igp",
     "!",
     "router bgp redistribute overlay",
     "!",
@@ -118,8 +118,6 @@
     "router oap redistribute vlan 4000,3243",
     "!",
     "router oap redistribute bgp",
-    "!",
-    "router oap redistribute rapng-vpn",
     "!",
     "loginsession timeout 0",
     "!"

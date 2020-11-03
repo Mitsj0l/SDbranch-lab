@@ -1,5 +1,4 @@
 from central import *
-from twisted.internet import task, reactor
 import time
 import sys
 import argparse
