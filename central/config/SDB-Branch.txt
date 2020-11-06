@@ -163,7 +163,6 @@
     "lldp receive",
     "switchport trunk allowed vlan 1,9-12,15,20",
     "type lan",
-    "trusted",
     "!",
     "interface vlan 10",
     "!",

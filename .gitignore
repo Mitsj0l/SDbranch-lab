@@ -6,6 +6,7 @@ central/config/config.cfg
 .idea/
 .vscode/
 venv/
+*.iso
 
 
 # Byte-compiled / optimized / DLL files
