@@ -1,24 +1,9 @@
-from configparser import ConfigParser
-import os.path as path
 import os
+import os.path as path
+from configparser import ConfigParser
 
-# params = Path(__file__).parents[1]
+params = path.abspath(path.join(__file__, "../..", "config/config.cfg"))
 
-# print(params,"/config/config.cfg")
-# print("komtiedan")
-# two_up =  path.abspath(path.join(__file__ ,"../..","config/config.cfg"))
-# print(two_up)
-# print("komtiedan")
-# import sys
-# print(sys.path)
-# print(os.path.dirname(__file__))
-# print(os.path.dirname(__file__),os.path.pardir)
-
-# configuration file parameters
-params = path.abspath(path.join(__file__ ,"../..","config/config.cfg"))
-# print(params)
-# print(os.path.pardir)
-# print(os.path.basename())
 
 config = ConfigParser(strict=True)
 config.read(params)

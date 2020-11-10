@@ -1,14 +1,17 @@
-import central.authentication.database
-import central.authentication.check_config
-import requests
 import json
 from datetime import datetime
+
+import central.authentication.check_config
+import central.authentication.database
+import requests
+
 
 def central_authentication():
     print("Starting the API token retrieval")
     try:
         get_xcsrf = requests.post(
-            url=central.authentication.check_config.central_instance + "/oauth2/authorize/central/api/login",
+            url=central.authentication.check_config.central_instance +
+            "/oauth2/authorize/central/api/login",
             params={
                 "client_id": central.authentication.check_config.app_clientid,
             },
@@ -35,7 +38,8 @@ def central_authentication():
 
     try:
         get_authcode = requests.post(
-            url=central.authentication.check_config.central_instance + "/oauth2/authorize/central/api",
+            url=central.authentication.check_config.central_instance +
+            "/oauth2/authorize/central/api",
             params={
                 "client_id": central.authentication.check_config.app_clientid,
                 "response_type": "code",
@@ -85,6 +89,6 @@ def central_authentication():
     token_expiry = getaccesstoken_json['expires_in']
     timestamp = datetime.now().isoformat(' ', 'seconds')
     central.authentication.database.database_updatetokens(central.authentication.check_config.app_clientid, central.authentication.check_config.app_customerid, central.authentication.check_config.app_clientsecret, csrf_token, csrf_session_token, authcode,
-                          token_access,
-                          timestamp)
+                                                          token_access,
+                                                          timestamp)
     return token_refresh, token_access, token_expiry, csrf_token, csrf_session_token

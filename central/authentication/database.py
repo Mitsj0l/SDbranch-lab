@@ -1,13 +1,12 @@
-from os import path
 import os
-import sys
 import sqlite3
+import sys
 from datetime import datetime
-import pandas as pd
+from os import path
 
 import central.authentication.central_auth
 import central.authentication.central_frontend_auth
-
+import pandas as pd
 
 # def tester():
 #     central.authentication.central_auth.hello_world()
@@ -15,10 +14,12 @@ import central.authentication.central_frontend_auth
 # def database_function():
 #     print("This is my database")
 
+
 def database_init():
     if path.exists("central/authentication/token.sqlite3") == False:
         print("Creating the local database...")
-        conn = sqlite3.connect('central/authentication/token.sqlite3')  # You can create a new database by changing the name within the quotes
+        # You can create a new database by changing the name within the quotes
+        conn = sqlite3.connect('central/authentication/token.sqlite3')
         c = conn.cursor()  # The database will be saved in the location where your 'py' file is saved
         # Create table - CLIENTS
         c.execute('''CREATE TABLE CLIENTS
@@ -34,7 +35,8 @@ def database_init():
         print("Checking if an API key is still valid...")
         conn = sqlite3.connect('central/authentication/token.sqlite3')
         c = conn.cursor()
-        df1 = pd.read_sql_query("SELECT * FROM CLIENTS ORDER BY generated_id DESC LIMIT 1;", conn)
+        df1 = pd.read_sql_query(
+            "SELECT * FROM CLIENTS ORDER BY generated_id DESC LIMIT 1;", conn)
         token_timestamp = df1['Date'].values[0]
         current_timestamp = datetime.now().isoformat(' ', 'seconds')
         start = __datetime(token_timestamp)
@@ -47,7 +49,7 @@ def database_init():
             central.authentication.central_auth.central_authentication()
             central.authentication.central_frontend_auth.frontend_auth()
         else:
-            #Retrieve stored tokens for Offical API
+            # Retrieve stored tokens for Offical API
             get_column_names = c.execute("select * from CLIENTS limit 1")
             col_name = [i[0] for i in get_column_names.description]
             c.execute('''
@@ -57,7 +59,7 @@ def database_init():
             print(col_name)
             print(c.fetchall())
 
-            #Retrieve stored tokens for Frontend API
+            # Retrieve stored tokens for Frontend API
             get_column_names = c.execute("select * from FrontendAPI limit 1")
             col_name = [i[0] for i in get_column_names.description]
             c.execute('''
@@ -68,9 +70,9 @@ def database_init():
             print(c.fetchall())
 
 
-
 def __datetime(date_str):
     return datetime.strptime(date_str, '%Y-%m-%d %H:%M:%S')
+
 
 def database_updatetokens(app_clientid, app_customerid, app_clientsecret, csrf_token, csrf_session_token, authcode,
                           token_access,
@@ -92,13 +94,14 @@ def database_updatetokens(app_clientid, app_customerid, app_clientsecret, csrf_t
     conn.commit()
     c.close()
 
+
 def database_updatetokens_frontend(customer_id, csrf_token, csrf_session_token,
-                          csrf_admin_token, csrf_admin_global_session_token, timestamp):
+                                   csrf_admin_token, csrf_admin_global_session_token, timestamp):
     conn = sqlite3.connect('central/authentication/token.sqlite3')
     c = conn.cursor()
     params = (
         customer_id, csrf_token, csrf_session_token,
-                    csrf_admin_token, csrf_admin_global_session_token, timestamp)
+        csrf_admin_token, csrf_admin_global_session_token, timestamp)
     c.execute("insert into FrontendAPI values (null,?,?,?,?,?,?)", params)
     conn.commit()
     c.execute('''
@@ -109,18 +112,22 @@ def database_updatetokens_frontend(customer_id, csrf_token, csrf_session_token,
     print(c.fetchall())
     c.close()
 
+
 def database_lookup():
     conn = sqlite3.connect('central/authentication/token.sqlite3')
-    df1 = pd.read_sql_query("SELECT * FROM CLIENTS ORDER BY generated_id DESC LIMIT 1;", conn)
+    df1 = pd.read_sql_query(
+        "SELECT * FROM CLIENTS ORDER BY generated_id DESC LIMIT 1;", conn)
     central_xcsrf = df1['XCSRF_Token'].values[0]
     central_xcsrf_session = df1['XCSRF_Session'].values[0]
     central_token_access = df1['Acess_Token'].values[0]
     return central_xcsrf, central_xcsrf_session, central_token_access
 
+
 def database_lookup_frontend():
     # print("Looking up Frontend tokens:")
     conn = sqlite3.connect('central/authentication/token.sqlite3')
-    df1 = pd.read_sql_query("SELECT * FROM FrontendAPI ORDER BY generated_id DESC LIMIT 1;", conn)
+    df1 = pd.read_sql_query(
+        "SELECT * FROM FrontendAPI ORDER BY generated_id DESC LIMIT 1;", conn)
     # print(df1)
     central_xcsrf = df1['XCSRF_Token'].values[0]
     central_xcsrf_session = df1['XCSRF_Session'].values[0]

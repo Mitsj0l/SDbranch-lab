@@ -1,26 +1,28 @@
-import central.authentication.database
-import central.authentication.central_auth
-import central.configuration.headers as headers
-import requests
-import json
-import pandas as pd
-from datetime import datetime
 import csv
-import os
-from os import path
-import time
-import requests
-import random,string
 import itertools
+import json
+import os
+import random
+import string
+import time
+from datetime import datetime
+from os import path
+
+import central.authentication.central_auth
+import central.authentication.database
+import central.configuration.headers as headers
+import pandas as pd
+import requests
 from requests_toolbelt import MultipartEncoder
 
+
 def group_create(central_group_name):
-    for group_name in central_group_name: 
-        print("Creating Group: {}".format(group_name)) 
+    for group_name in central_group_name:
+        print("Creating Group: {}".format(group_name))
         try:
             response = requests.post(
-                url= headers.central_instance + "/configuration/v2/groups",
-                headers= headers.set_header_backend(),
+                url=headers.central_instance + "/configuration/v2/groups",
+                headers=headers.set_header_backend(),
                 data=json.dumps({
                     "group": str(group_name),
                     "group_attributes": {
@@ -39,13 +41,15 @@ def group_create(central_group_name):
         except requests.exceptions.RequestException:
             print('HTTP Request failed')
 
+
 def group_delete(central_group_name):
-    for group_name in central_group_name: 
-        print("Deleting Group: {}".format(group_name)) 
+    for group_name in central_group_name:
+        print("Deleting Group: {}".format(group_name))
         try:
             response = requests.delete(
-                url= headers.central_instance + "/configuration/v1/groups/{}".format(group_name),
-                headers= headers.set_header_backend()
+                url=headers.central_instance +
+                "/configuration/v1/groups/{}".format(group_name),
+                headers=headers.set_header_backend()
             )
             print('Response HTTP Status Code: {status_code}'.format(
                 status_code=response.status_code))
@@ -54,11 +58,12 @@ def group_delete(central_group_name):
         except requests.exceptions.RequestException:
             print('HTTP Request failed')
 
+
 def get_group_id():
     try:
         response = requests.get(
-            url= headers.central_ui_url + "/groups/v2/limit/50/offset/0",
-            headers= headers.set_header_frontend(),
+            url=headers.central_ui_url + "/groups/v2/limit/50/offset/0",
+            headers=headers.set_header_frontend(),
         )
         # print('Response HTTP Status Code: {status_code}'.format(
         #     status_code=response.status_code))
@@ -74,14 +79,15 @@ def get_group_id():
 
 def groupconfig_persona_bgw(central_group_bgw):
     try:
-        print("Setting group configuration {} to SDWAN_Persona BGW.".format(central_group_bgw))
+        print("Setting group configuration {} to SDWAN_Persona BGW.".format(
+            central_group_bgw))
         response = requests.post(
-            url= headers.central_ui_url + "/caas/v1/configuration/object/persona",
+            url=headers.central_ui_url + "/caas/v1/configuration/object/persona",
             params={
                 "commit": "True",
                 "node_name": central_group_bgw,
             },
-            headers= headers.set_header_frontend(),
+            headers=headers.set_header_frontend(),
             data=json.dumps({
                 "persona": "BG"
             })
@@ -93,16 +99,18 @@ def groupconfig_persona_bgw(central_group_bgw):
     except requests.exceptions.RequestException:
         print('HTTP Request failed')
 
+
 def groupconfig_persona_vpnc(central_group_vpnc):
     try:
-        print("Setting group configuration {} to SDWAN_Persona VPNC.".format(central_group_vpnc))
+        print("Setting group configuration {} to SDWAN_Persona VPNC.".format(
+            central_group_vpnc))
         response = requests.post(
-            url= headers.central_ui_url + "/caas/v1/configuration/object/persona",
+            url=headers.central_ui_url + "/caas/v1/configuration/object/persona",
             params={
                 "commit": "True",
                 "node_name": central_group_vpnc,
             },
-            headers= headers.set_header_frontend(),
+            headers=headers.set_header_frontend(),
             data=json.dumps({
                 "persona": "VPNC"
             })
@@ -113,13 +121,17 @@ def groupconfig_persona_vpnc(central_group_vpnc):
         #     content=response.content))
     except requests.exceptions.RequestException:
         print('HTTP Request failed')
-        
+
+
 def groupconfig_sdwanhub(central_group_bgw, serial_number_vpnc1, serial_number_vpnc2):
     try:
-        print("Associating SDB-Branch group to Hubs: {} and {} .".format(serial_number_vpnc1, serial_number_vpnc2))
+        print("Associating SDB-Branch group to Hubs: {} and {} .".format(
+            serial_number_vpnc1, serial_number_vpnc2))
         response = requests.post(
-            url= headers.central_instance + "/sdwan-config/v1/node_list/GROUP/{}/config/branch-config/".format(central_group_bgw),
-            headers= headers.set_header_backend(),
+            url=headers.central_instance +
+            "/sdwan-config/v1/node_list/GROUP/{}/config/branch-config/".format(
+                central_group_bgw),
+            headers=headers.set_header_backend(),
             data=json.dumps({
                 "hubs": [
                     {
@@ -136,14 +148,17 @@ def groupconfig_sdwanhub(central_group_bgw, serial_number_vpnc1, serial_number_v
         print('Response HTTP Response Body: {content}'.format(
             content=response.content))
     except requests.exceptions.RequestException:
-        print('HTTP Request failed')      
+        print('HTTP Request failed')
+
 
 def groupconfig_sdwanmesh(central_group_hubmesh):
     try:
         print("Creating the Hub-Mesh label.")
         response = requests.post(
-            url= headers.central_instance + "/sdwan-config/v1/node_list/GLOBAL/GLOBAL/config/mesh-policy/hub-mesh/{}".format(central_group_hubmesh),
-            headers= headers.set_header_backend(),
+            url=headers.central_instance +
+            "/sdwan-config/v1/node_list/GLOBAL/GLOBAL/config/mesh-policy/hub-mesh/{}".format(
+                central_group_hubmesh),
+            headers=headers.set_header_backend(),
             data=json.dumps({
                 "label": central_group_hubmesh
             })
@@ -153,29 +168,35 @@ def groupconfig_sdwanmesh(central_group_hubmesh):
         print('Response HTTP Response Body: {content}'.format(
             content=response.content))
     except requests.exceptions.RequestException:
-        print('HTTP Request failed')     
+        print('HTTP Request failed')
+
 
 def groupconfig_sdwanmesh_delete(central_group_hubmesh):
     try:
         print("Deleting the Hub-Mesh label.")
         response = requests.delete(
-            url= headers.central_instance + "/sdwan-config/v1/node_list/GLOBAL/GLOBAL/config/mesh-policy/hub-mesh/{}/".format(central_group_hubmesh),
-            headers= headers.set_header_backend(),
+            url=headers.central_instance +
+            "/sdwan-config/v1/node_list/GLOBAL/GLOBAL/config/mesh-policy/hub-mesh/{}/".format(
+                central_group_hubmesh),
+            headers=headers.set_header_backend(),
         )
         print('Response HTTP Status Code: {status_code}'.format(
             status_code=response.status_code))
         print('Response HTTP Response Body: {content}'.format(
             content=response.content))
     except requests.exceptions.RequestException:
-        print('HTTP Request failed')     
+        print('HTTP Request failed')
 
 
 def groupconfig_sdwanmesh_link(central_group_hubmesh, central_group_vpnc1, central_group_vpnc2):
     try:
-        print("Linking the Hub-Mesh label between VPNC-Group {} and {}.".format(central_group_vpnc1, central_group_vpnc2))
+        print("Linking the Hub-Mesh label between VPNC-Group {} and {}.".format(
+            central_group_vpnc1, central_group_vpnc2))
         response = requests.post(
-            url= headers.central_instance + "/sdwan-config/v1/node_list/GLOBAL/GLOBAL/config/mesh-policy/hub-mesh/{}".format(central_group_hubmesh),
-            headers= headers.set_header_backend(),
+            url=headers.central_instance +
+            "/sdwan-config/v1/node_list/GLOBAL/GLOBAL/config/mesh-policy/hub-mesh/{}".format(
+                central_group_hubmesh),
+            headers=headers.set_header_backend(),
             data=json.dumps({
                 "hub-groups": [
                     {
@@ -193,14 +214,15 @@ def groupconfig_sdwanmesh_link(central_group_hubmesh, central_group_vpnc1, centr
         print('Response HTTP Response Body: {content}'.format(
             content=response.content))
     except requests.exceptions.RequestException:
-        print('HTTP Request failed')    
+        print('HTTP Request failed')
 
-def group_preassignment(serial_number,group_id):
+
+def group_preassignment(serial_number, group_id):
     print("Pre-Assigning Device Inventory to a group, so the VGW will become visible in Central Monitoring. Device SN: {}".format(serial_number))
     try:
         response = requests.post(
-            url= headers.central_portal + "/platform/devicemanage/preassign",
-            headers= central.configuration.headers.set_header_frontend_admin(),
+            url=headers.central_portal + "/platform/devicemanage/preassign",
+            headers=central.configuration.headers.set_header_frontend_admin(),
             data=json.dumps({
                 "devices": [
                     serial_number

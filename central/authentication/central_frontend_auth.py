@@ -1,18 +1,20 @@
-import central.authentication.database
-import central.authentication.check_config
-import requests, pickle
-import json
-from datetime import datetime
-import httplib2
-import urllib
-import hyper
-from hyper.contrib import HTTP20Adapter
 import ast
+import json
+import pickle
+import urllib
 import urllib.parse as urlparse
+from datetime import datetime
 from urllib.parse import parse_qs
-from requests.models import PreparedRequest
-from bs4 import BeautifulSoup
+
+import central.authentication.check_config
+import central.authentication.database
+import httplib2
+import hyper
 import pandas as pd
+import requests
+from bs4 import BeautifulSoup
+from hyper.contrib import HTTP20Adapter
+from requests.models import PreparedRequest
 
 session = requests.session()
 username = central.authentication.check_config.app_username
@@ -20,15 +22,17 @@ password = central.authentication.check_config.app_password
 customer_id = central.authentication.check_config.app_customerid
 
 central_portal = str(central.authentication.check_config.central_portal)
-central_portal_fqdn = str(central.authentication.check_config.central_portal_fqdn)
+central_portal_fqdn = str(
+    central.authentication.check_config.central_portal_fqdn)
 central_instance = str(central.authentication.check_config.central_instance)
 central_ui_url = str(central.authentication.check_config.central_ui_url)
 central_ui_fqdn = str(central.authentication.check_config.central_ui_fqdn)
 
+
 def frontend_auth():
     print("Starting the frontend token retrieval")
 ####################################################################################
-##  1st API call - check if username exists
+# 1st API call - check if username exists
 ####################################################################################
     try:
         print("1 - Check if username exists")
@@ -38,7 +42,7 @@ def frontend_auth():
                 "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
             },
             data={
-                "userid": username ,
+                "userid": username,
                 "language": "en_US",
             },
         )
@@ -51,11 +55,11 @@ def frontend_auth():
 
 
 ####################################################################################
-##  2nd API call - Post SSO and Receive SSO URL Params
+# 2nd API call - Post SSO and Receive SSO URL Params
 ####################################################################################
     try:
         print("2 - Post SSO and Receive SSO URL Params")
-        url=central_portal + "/platform/login/aruba/sso"
+        url = central_portal + "/platform/login/aruba/sso"
         session.mount(url, HTTP20Adapter())
         response1 = session.post(
             url=url,
@@ -82,20 +86,19 @@ def frontend_auth():
 
         params_new = parse_qs(base_query.query)
 
-
     except requests.exceptions.RequestException:
         print('HTTP Request failed')
 
 
 ####################################################################################
-##  3rd API call - Get SSO URL + Tokens
+# 3rd API call - Get SSO URL + Tokens
 ####################################################################################
     try:
         print("3 - Get SSO URL + Tokens")
         session.mount(base_server, HTTP20Adapter())
 
         response3 = session.get(
-            url=base_server ,
+            url=base_server,
             params=params_new,
             headers={
                 "Referer": central_portal + "/platform/login/user",
@@ -119,9 +122,8 @@ def frontend_auth():
         print('HTTP Request failed')
 
 
-
 ####################################################################################
-##  4th API call - GET SSO
+# 4th API call - GET SSO
 ####################################################################################
     try:
         print("4 - Get SSO to user-mapping")
@@ -176,10 +178,8 @@ def frontend_auth():
         print("5 - SAML Response code noth found...")
 
 
-
-
 ####################################################################################
-##  6th API call - POST SSO ACS
+# 6th API call - POST SSO ACS
 ####################################################################################
     try:
         print("6 - Post to SSO ACS")
@@ -190,11 +190,11 @@ def frontend_auth():
             headers={
                 "Cookie": cookiejar,
             },
-           data={
+            data={
                 "RelayState": central_portal + "/platform/login/user",
                 "SAMLResponse": saml_code
-                }
-            )
+            }
+        )
 
         # print('Response HTTP Status Code: {status_code}'.format(
         #     status_code=response6.status_code))
@@ -202,7 +202,6 @@ def frontend_auth():
         #     content=response6.content))
     except requests.exceptions.RequestException:
         print('HTTP Request failed')
-
 
     soup6 = BeautifulSoup(response6.content, features="html.parser")
     # print(soup.prettify())
@@ -214,9 +213,8 @@ def frontend_auth():
         print("6 - SAML REF Code noth found...")
 
 
-
 ####################################################################################
-##  7th API call - POST to Aruba Central
+# 7th API call - POST to Aruba Central
 ####################################################################################
     try:
         print("7 - Logging into Central")
@@ -248,7 +246,7 @@ def frontend_auth():
         print('HTTP Request failed')
 
 ####################################################################################
-##  8th API call - Redirect to Customer portal
+# 8th API call - Redirect to Customer portal
 ####################################################################################
     try:
         print("8 - Redirecting to Central customer list")
@@ -271,7 +269,7 @@ def frontend_auth():
         print('HTTP Request failed')
 
 ####################################################################################
-##  9th API call - Getting Permissions from customer portal
+# 9th API call - Getting Permissions from customer portal
 ####################################################################################
     try:
         print("9 - Getting Permissions from customer portal")
@@ -283,7 +281,7 @@ def frontend_auth():
                 "Cookie": cookiejar,
             },
         )
- 
+
         # print('Response HTTP Status Code: {status_code}'.format(
         #     status_code=response9.status_code))
         # print('Response HTTP Response Body: {content}'.format(
@@ -299,7 +297,7 @@ def frontend_auth():
     print(df2[['name', 'id', 'created_at', 'email', 'region']])
 
 ####################################################################################
-##  10th API call - Selecting the user Frontend account in Admin panel
+# 10th API call - Selecting the user Frontend account in Admin panel
 ####################################################################################
     try:
         print("10 - Selecting the user Frontend account in Admin panel")
@@ -315,7 +313,7 @@ def frontend_auth():
                 "cid": customer_id
             })
         )
-        print("Selected Customer Account ID (CID): " , customer_id)
+        print("Selected Customer Account ID (CID): ", customer_id)
         csrf_admin_token = response10.cookies['csrftoken']
         csrf_admin_global_session_token = response10.cookies['global-session']
 
@@ -328,7 +326,7 @@ def frontend_auth():
 
 
 ####################################################################################
-##  11th API call - Get Token for Admin UI Frontend
+# 11th API call - Get Token for Admin UI Frontend
 ####################################################################################
     try:
 
@@ -356,7 +354,7 @@ def frontend_auth():
 
 
 ####################################################################################
-##  12th API call - Get Token for NMS
+# 12th API call - Get Token for NMS
 ####################################################################################
     try:
         print("12 - Get Token for NMS App")
@@ -386,7 +384,7 @@ def frontend_auth():
 
 
 ####################################################################################
-##  13th API call - Get Session Token for frontend new XCSRF Tokens
+# 13th API call - Get Session Token for frontend new XCSRF Tokens
 ####################################################################################
     try:
         print("13 - Redirecting to Central NMS Frontend")
@@ -395,8 +393,7 @@ def frontend_auth():
         session.mount(api_13th_url, HTTP20Adapter())
         response13 = session.get(
             url=api_13th_url,
-            params=params_new
-            ,
+            params=params_new,
             headers={
 
             },
@@ -414,7 +411,7 @@ def frontend_auth():
         print('HTTP Request failed')
 
 ####################################################################################
-##  14th API call - Get XCSRF Token for frontend
+# 14th API call - Get XCSRF Token for frontend
 ####################################################################################
     try:
         print("14 - Get XCSRF Token for frontend")
@@ -433,7 +430,8 @@ def frontend_auth():
         csrf_token = response14.cookies['csrftoken']
         csrf_session_token = response14.cookies['session']
         print("This is the final Frontend NMS CSRF token: ", csrf_token)
-        print("This is the final Frontend NMS CSRF Session token: ", csrf_session_token)
+        print("This is the final Frontend NMS CSRF Session token: ",
+              csrf_session_token)
         cookiejar = "csrftoken=" + csrf_token + "; session=" + csrf_session_token
 
         # print('Response HTTP Status Code: {status_code}'.format(
@@ -442,7 +440,6 @@ def frontend_auth():
         #     content=response14.content))
     except requests.exceptions.RequestException:
         print('HTTP Request failed')
-
 
     print("15 - Request Central Keep-alive")
     try:
@@ -467,6 +464,6 @@ def frontend_auth():
 
     timestamp = datetime.now().isoformat(' ', 'seconds')
     central.authentication.database.database_updatetokens_frontend(customer_id, csrf_token, csrf_session_token,
-                          csrf_admin_token, csrf_admin_global_session_token, timestamp)
-    
+                                                                   csrf_admin_token, csrf_admin_global_session_token, timestamp)
+
     return csrf_token, csrf_session_token
