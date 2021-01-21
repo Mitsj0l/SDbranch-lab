@@ -224,7 +224,7 @@ def frontend_auth():
         response7 = session.post(
             url=api_7th_url,
             headers={
-                "Host": central_portal_fqdn,
+#                 "Host": central_portal_fqdn, # With Central 2.5.3 this will cause an issue with mounting the HTTP2 session.
                 "Cookie": global_session,
             },
             data={
@@ -306,6 +306,7 @@ def frontend_auth():
         response10 = requests.post(
             url=api_10th_url,
             headers={
+                "Content-Type": "application/json;charset=utf-8",
                 "Host": central_portal_fqdn,
                 "Cookie": cookiejar,
             },
