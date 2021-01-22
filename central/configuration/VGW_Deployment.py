@@ -82,7 +82,8 @@ def Assignment_VGW(array_central_group_bgw, array_central_group_vpnc1, array_cen
         print("Sleeping 30 seconds to make sure that the device is added to Central Monitoring Instance - this varies per cid...")
         # Assign function VPNC and BGW's to the right group.
         central.configuration.groups.group_preassignment(
-            serial_number, group_id)
+            serial_number, group_id) # This function should be deprecated once Central 2.5.3 is being used.
+        # central.configuration.groups.group_move(serial_number, group_name) # Central 2.5.3 automatically assigns VGW to Default group. Hence the Frontend Admin pre-assignment cannot be used and the backend Group Move function should be used. 
 
         time.sleep(30)
         # Assign device to monitoring location. This also needs some timing of 10 seconds.
