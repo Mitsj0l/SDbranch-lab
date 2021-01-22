@@ -58,7 +58,27 @@ def group_delete(central_group_name):
         except requests.exceptions.RequestException:
             print('HTTP Request failed')
 
-
+def group_move(serial_number, group_name):
+    try:
+        print("Moving the VGW from the 'default' group to the intended group. Device SN: {}".format(serial_number))
+        response = requests.post(
+            url=headers.central_instance +
+            "/configuration/v1/devices/move",
+            headers=headers.set_header_backend(),
+            data=json.dumps({
+            "group": group_name,
+            "serials": [
+                serial_number
+            ]
+            })
+        )
+        print('Response HTTP Status Code: {status_code}'.format(
+            status_code=response.status_code))
+        print('Response HTTP Response Body: {content}'.format(
+            content=response.content))
+    except requests.exceptions.RequestException:
+        print('HTTP Request failed')
+        
 def get_group_id():
     try:
         response = requests.get(
