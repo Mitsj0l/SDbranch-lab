@@ -1,0 +1,62 @@
+!
+!Version ArubaOS-CX Virtual.10.04.3000
+!export-password: default
+hostname SDB-CX-DC-Overlay
+user admin group administrators password ciphertext AQBapXBNFdp0lHBlsM5ty2+sWTAarSIZd3DeeCPWHVA9GQvYYgAAAH4hg4xe6UZhQGfNUZQXRXqjEDBR9gyDaEVtFYBSSY8LbVfH9KxPrcfqTqYxpqo5inYdke8hhNJbLRqGwHNcjiufO43jR9Cypi4bLLTAa7xl32/1VCoO3E7eI/2B0Rc70xpJ
+led locator on
+!
+!
+!
+!
+ssh server vrf default
+ssh server vrf mgmt
+!
+!
+!
+!
+!
+router ospf 1
+    router-id 10.90.30.66
+    redistribute bgp
+    area 0.0.0.0
+vlan 1
+interface mgmt
+    no shutdown
+    ip dhcp
+interface 1/1/1
+    no shutdown
+    description MANAGEMENT_NETWORK
+    ip address 10.90.30.66/24
+    ip ospf 1 area 0.0.0.0
+interface 1/1/2
+    no shutdown
+    description SDB_VPNC3_LAN_VL3243
+    ip address 10.84.10.1/24
+    ip ospf 1 area 0.0.0.0
+interface 1/1/3
+    no shutdown
+    description SDB_VPNC4_LAN_VL3253
+    ip address 10.85.10.1/24
+    ip ospf 1 area 0.0.0.0
+interface 1/1/4
+    no shutdown
+    description SDB_DC_SERVER
+    ip address 10.255.255.1/24
+ip route 0.0.0.0/0 10.90.30.70
+router bgp 65000
+    neighbor 10.84.10.2 remote-as 65000
+    neighbor 10.85.10.2 remote-as 65000
+    address-family ipv4 unicast
+        neighbor 10.84.10.2 activate
+        neighbor 10.84.10.2 allowas-in 1
+        neighbor 10.84.10.2 next-hop-self
+        neighbor 10.85.10.2 activate
+        neighbor 10.85.10.2 allowas-in 1
+        neighbor 10.85.10.2 next-hop-self
+        network 10.84.10.0/24
+        network 10.85.10.0/24
+        network 10.90.30.0/24
+        network 10.255.255.0/24
+    exit-address-family
+!
+https-server vrf mgmt
