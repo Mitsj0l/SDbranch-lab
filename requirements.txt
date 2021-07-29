@@ -9,7 +9,7 @@ chardet==3.0.4
 decorator==4.4.2
 h2==2.6.2
 hpack==3.0.0
-httplib2==0.18.1
+httplib2==0.19.0
 hyper==0.7.0
 hyperframe==3.2.0
 idna==2.10
